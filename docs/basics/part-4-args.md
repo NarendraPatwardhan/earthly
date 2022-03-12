@@ -43,8 +43,49 @@ In this case `my-new-image-tag` will override the default value and become the n
 earthly +docker
 # tag for image will be 'latests'
 ```
+
+### Passing ARGS in FROM, BUILD, and COPY
+We can also pass `ARG`s when referancing a target inside an Earthfile. Using the FROM and BUILD commands, this looks pretty ismilar to what we did above.
+
+```Dockerfile
+docker:
+    ARG tag='latest'
+    COPY +build/go-example .
+    ENTRYPOINT ["/go-example/go-example"]
+    SAVE IMAGE go-example:$tag
+
+with-build:
+    BUILD +docker --tag='my-new-image-tag'
+
+with-from:
+    FROM +docker --tag='my-new-image-tag'
+```
+We can also pass ARGS when using the COPY command, though the syntax is a little different.
+
+```Dockerfile
+docker:
+    ARG tag='latest'
+    COPY +build/go-example .
+    ENTRYPOINT ["/go-example/go-example"]
+    SAVE IMAGE go-example:$tag
+
+with-copy:
+    COPY (+docker --tag='my-new-image-tag')
+```
+
+
+
+
+
 ## Built in ARGS
-TODO There are a number of built in ARGs that Earthly offers. You can read about a [complete list of them](), but for now let's take a look at two.
+There are a number of built in`ARG`s that Earthly offers. You can read about a [complete list of them](https://docs.earthly.dev/docs/earthfile/builtin-args), but for now let's take a look at how they work.
+
+In order to use Earthly built in `ARGS` they need to be pre-declared. Once you do that, you can use them just like any other `ARG`.
+
+```Dockerfile
+ARG USERARCH
+RUN echo $USERARCH
+```
 
 ## More Examples
 

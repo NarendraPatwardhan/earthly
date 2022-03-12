@@ -8,6 +8,7 @@ Whenever you need to use `WITH DOCKER` we recommend (though it is not required) 
 
 Notice `WITH DOCKER` creates a block of code that has an `END` keyword. Everything that happens within this block is going to take place within our `earthly/dind:alpine` container.
 
+### Pulling an Image
 ```Dockerfile
 hello:
     FROM earthly/dind:alpine
@@ -18,6 +19,22 @@ hello:
 ```
 You can see in the command above that we can pass a flag to `WITH DOCKER` telling it to pull an image from Docker Hub. We can pass other flags to load in artifacts build by other targets `--load` or even images defined by docker-compose `--compose`. These images will be available within the context of `WITH DOCKER`'s docker daemon.
 
+### Loading an Image
+We can also load in an image created by another target.
+
+```Dockerfile
+my-hello-world:
+    FROM ubuntu
+    CMD echo 'hello world'
+    SAVE IMAGE my-hello:latest
+
+hello:
+    FROM earthly/dind:alpine
+    WITH DOCKER --load hello:latest=+my-hello-world
+        RUN docker run hello
+    END
+```
+
 ## A Real World Example
 
 One common use case for `WITH DOCKER` is running integration tests that require other services. In this case we might need to set up a database in addition to our application.
@@ -26,35 +43,115 @@ TODO:
 1. Learn how to write go tests and get this example to work
 2. Write a more detailed breakdown of these files.
 3. Create examples for Java, javascript and Python (steal this one from Circle Ci article)
-
+### Using Docker Compose
 ```yml
-version: "3.9"
-   
+version: "3"
 services:
-  db:
-    image: postgres
-    container_name: db
-    hostname: postgres
-    environment:
-      - POSTGRES_NAME=postgres
-      - POSTGRES_USER=postgres
+  redis:
+    container_name: local-redis
+    image: redis:6.0-alpine
     ports:
-      - 5432:5432
+      - 127.0.0.1:6379:6379
+    hostname: redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6379"]
+      interval: 1s
+      timeout: 10s
+      retries: 5
+
+```
+`main.go`
+```go
+package main
+
+import (
+	"github.com/sirupsen/logrus"
+)
+
+var howCoolIsEarthly = "IceCool"
+
+func main() {
+	logrus.Info("hello world")
+}
+```
+`main_integration_test.go`
+```go
+package main
+
+import (
+	"context"
+	"testing"
+
+	"github.com/go-redis/redis/v8"
+	"github.com/stretchr/testify/require"
+)
+
+func TestIntegration(t *testing.T) {
+	ctx := context.Background()
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+
+	err := rdb.Set(ctx, "howCoolIsEarthly", howCoolIsEarthly, 0).Err()
+	if err != nil {
+		panic(err)
+	}
+
+	resultFromDB, err := rdb.Get(ctx, "howCoolIsEarthly").Result()
+	if err != nil {
+		panic(err)
+	}
+	require.Equal(t, howCoolIsEarthly, resultFromDB)
+}
 ```
 
 ```Dockerfile
 VERSION 0.6
-FROM earthly/dind:alpine
+FROM golang:1.15-alpine3.13
 WORKDIR /go-example
-RUN wget postgresql-client
 
-run-tests:
-    COPY ./docker-compose.yml .
+deps:
+    COPY go.mod go.sum ./
+    RUN go mod download
+    SAVE ARTIFACT go.mod AS LOCAL go.mod
+    SAVE ARTIFACT go.sum AS LOCAL go.sum
+
+build:
+    FROM +deps
+    COPY main.go .
+    RUN go build -o build/go-example main.go
+    SAVE ARTIFACT build/go-example /go-example AS LOCAL build/go-example
+
+docker:
+    COPY +build/go-example .
+    ENTRYPOINT ["/go-example/go-example"]
+    SAVE IMAGE --push earthly/examples:go
+
+unit-test:
+    FROM +deps
+    COPY main.go .
+    COPY main_test.go .
+    RUN CGO_ENABLED=0 go test github.com/earthly/earthly/examples/go
+
+integration-test:
+    FROM +deps
+    COPY main.go .
+    COPY main_integration_test.go .
+    COPY docker-compose.yml ./
     WITH DOCKER --compose docker-compose.yml
-        RUN while ! pg_isready --host=localhost --port=5432 dia --username=example; do sleep 1; done ;\
-            go test
+        RUN CGO_ENABLED=0 go test github.com/earthly/earthly/examples/go
     END
+
+all:
+  BUILD +build
+  BUILD +unit-test
+  BUILD +integration-test
+  BUILD +docker
+
 ```
+
 ## More Examples
 <details open>
 <summary>Python</summary>
@@ -64,7 +161,7 @@ To copy the files for [this example ( Part 2 )](https://github.com/earthly/earth
 ```bash
 earthly --artifact github.com/earthly/earthly/examples/tutorial/python:main+part3/part3 ./part3
 ```
-
+## Using Docker Compose
 ```yml
 version: "3.9"
    
@@ -104,5 +201,6 @@ test:
         python manage.py test
   END
 ```
+## Loading an Image from Another Target
 
 </details>

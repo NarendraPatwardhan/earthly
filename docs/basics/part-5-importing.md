@@ -42,6 +42,26 @@ build:
     RUN go build -o build/go-example main.go
     SAVE ARTIFACT build/go-example /go-example AS LOCAL build/go-example
 ```
+
+## Importing Whole Projects
+In addition to importing tagets from other files, we can also import an entire file with the `IMPORT` command.
+
+```Dockerfile
+VERSION 0.6
+FROM golang:1.15-alpine3.13
+WORKDIR /go-example
+IMPORT ./service AS my_service
+
+build:
+    FROM my_service+docker
+    COPY main.go .
+    RUN go build -o build/go-example main.go
+    SAVE ARTIFACT build/go-example /go-example AS LOCAL build/go-example
+```
+In this example, we assume there is a `service` directory that contains its own Earthfile. We import it and then use the `AS` keyword to give it an alias.
+
+Then, in our `+build` target we can inherit from any target in the imported Earthfile by passing <alias>+<target-name>. In this case the Earthfile in the service directory has a target named `+docker`.
+
 ## More Examples
 
 <details open>
@@ -61,9 +81,11 @@ Note that in our case, only the JavaScript version has an example where `FROM +d
 VERSION 0.6
 FROM node:13.10.1-alpine3.11
 WORKDIR /js-example
+IMPORT ../services/service AS my-service
 
 build:
     FROM ../services/service+deps
+    # Or, using the IMPORT above: FROM my-service+deps
     COPY src src
     RUN mkdir -p ./dist && cp ./src/index.html ./dist/
     RUN npx webpack
@@ -97,9 +119,11 @@ VERSION 0.6
 FROM openjdk:8-jdk-alpine
 RUN apk add --update --no-cache gradle
 WORKDIR /java-example
+IMPORT ../services/service AS my-service
 
 build:
     FROM ../services/service+deps
+    # Or, using the IMPORT above: FROM my-service+deps
     COPY src src
     RUN gradle build
     RUN gradle install
@@ -132,9 +156,11 @@ earthly --artifact github.com/earthly/earthly/examples/tutorial/python:main+part
 VERSION 0.6
 FROM python:3
 WORKDIR /code
+IMPORT ../services/service AS my-service
 
 build:
     FROM ../services/service+deps
+    # Or, using the IMPORT above: FROM my-service+deps
     COPY src src
     SAVE ARTIFACT src /src
 
