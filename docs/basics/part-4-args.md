@@ -73,7 +73,7 @@ docker:
     ARG tag='latest'
     COPY +build/go-example .
     ENTRYPOINT ["/go-example/go-example"]
-    SAVE IMAGE go-example:$tag
+    SAVE ARTIFACT go-example:$tag
 
 with-copy:
     COPY (+build/go-example --tag='my-new-image-tag') .

@@ -1,4 +1,3 @@
-
 VERSION 0.6
 FROM alpine:3.15
 WORKDIR /tutorial
@@ -23,6 +22,14 @@ test-part1:
         --lang=python \
         --part=part1
 
+test-part2:
+    BUILD +test-part \
+        --lang=go \
+        --lang=js \
+        --lang=java \
+        --lang=python \
+        --part=part2
+
 test-part3:
     BUILD +test-part \
         --lang=go \
@@ -46,6 +53,12 @@ test-part5:
         --lang=java \
         --lang=python \
         --part=part5
+
+test-part6:
+    BUILD +test-part \
+        --lang=go \
+        --lang=python \
+        --part=part6
 
 test-part:
     LOCALLY

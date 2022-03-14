@@ -1,11 +1,15 @@
 
 VERSION 0.6
-FROM alpine:3.16
+FROM alpine:3.15
 WORKDIR /tutorial
 
 part1:
     COPY --dir ./part1 ./
     SAVE ARTIFACT ./part1
+
+part2:
+    COPY --dir ./part2 ./
+    SAVE ARTIFACT ./part2
 
 part3:
     COPY --dir ./part3 ./
