@@ -1,3 +1,9 @@
+To copy the files for [this example ( Part 5 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/go/part5) run
+
+```bash
+earthly --artifact github.com/earthly/earthly/examples/tutorial/go:main+part5/part5 ./part5
+```
+
 Examples in [Python](#more-examples), [Javascript](#more-examples) and [Java](#more-examples) are at the bottom of this page.
 
 ## Calling on Targets From Other Earthfiles
@@ -22,9 +28,43 @@ build:
     SAVE ARTIFACT build/go-example /go-example AS LOCAL build/go-example
 
 ```
-But `FROM` also has the ability to import targets from Earthfiles in different directories.
+But `FROM` also has the ability to import targets from Earthfiles in different directories. Let's say we have a directory structure like this.
+```bash
+.
+├── services
+|   ├── service-one
+|   |   ├── Earthfile (containing +deps)
+|   |   ├── go.mod
+|   |   ├── go.sum
+├── main.go
+└── Earthfile
+
+```
+To copy the files for [this example ( Part 3 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/go/part5) run
+
+```bash
+earthly --artifact github.com/earthly/earthly/examples/tutorial/go:main+part5/part5 ./part5
+```
+
+We can use a target in the Earthfile in `/service/services` from inside the Earthfile in the rood of our directory.
 
 ```Dockerfile
+# `./service/services/Earthfile`
+
+VERSION 0.6
+FROM golang:1.15-alpine3.13
+WORKDIR /go-example
+
+deps:
+    COPY go.mod go.sum ./
+    RUN go mod download
+    # Output these back in case go mod download changes them.
+    SAVE ARTIFACT go.mod AS LOCAL go.mod
+    SAVE ARTIFACT go.sum AS LOCAL go.sum
+```
+
+```Dockerfile
+# ./Earthfile
 build:
     FROM ./services/service-one+deps
     COPY main.go .
@@ -81,11 +121,9 @@ Note that in our case, only the JavaScript version has an example where `FROM +d
 VERSION 0.6
 FROM node:13.10.1-alpine3.11
 WORKDIR /js-example
-IMPORT ../services/service AS my-service
 
 build:
-    FROM ../services/service+deps
-    # Or, using the IMPORT above: FROM my-service+deps
+    FROM ./services/service-one+deps
     COPY src src
     RUN mkdir -p ./dist && cp ./src/index.html ./dist/
     RUN npx webpack
@@ -106,7 +144,7 @@ docker:
 <details open>
 <summary>Java</summary>
 
-To copy the files for [this example ( Part 3 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/java/part5) run
+To copy the files for [this example ( Part 5 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/java/part5) run
 
 ```bash
 earthly --artifact github.com/earthly/earthly/examples/tutorial/java:main+part5/part5 ./part5
@@ -119,10 +157,9 @@ VERSION 0.6
 FROM openjdk:8-jdk-alpine
 RUN apk add --update --no-cache gradle
 WORKDIR /java-example
-IMPORT ../services/service AS my-service
 
 build:
-    FROM ../services/service+deps
+    FROM ./services/service-one+deps
     # Or, using the IMPORT above: FROM my-service+deps
     COPY src src
     RUN gradle build
@@ -144,7 +181,7 @@ docker:
 <details open>
 <summary>Python</summary>
 
-To copy the files for [this example ( Part 3 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/python/part5) run
+To copy the files for [this example ( Part 5 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/python/part5) run
 
 ```bash
 earthly --artifact github.com/earthly/earthly/examples/tutorial/python:main+part5/part5 ./part5
@@ -156,10 +193,9 @@ earthly --artifact github.com/earthly/earthly/examples/tutorial/python:main+part
 VERSION 0.6
 FROM python:3
 WORKDIR /code
-IMPORT ../services/service AS my-service
 
 build:
-    FROM ../services/service+deps
+    FROM ./services/service-one+deps
     # Or, using the IMPORT above: FROM my-service+deps
     COPY src src
     SAVE ARTIFACT src /src

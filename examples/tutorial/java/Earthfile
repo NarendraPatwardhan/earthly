@@ -18,3 +18,7 @@ part4:
 part5:
     COPY --dir ./part5 ./
     SAVE ARTIFACT ./part5
+
+part6:
+    COPY --dir ./part6 ./
+    SAVE ARTIFACT ./part6

@@ -1,10 +1,10 @@
 
 # Adding dependencies
 
-To copy the files for [this example ( Part 2 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/go/part3) run
+To copy the files for [this example ( Part 2 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/go/part2) run
 
 ```bash
-earthly --artifact github.com/earthly/earthly/examples/tutorial/go:main+part3/part3 ./part3
+earthly --artifact github.com/earthly/earthly/examples/tutorial/go:main+part2/part2 ./part2
 ```
 ## Dependencies
 Now let's imagine that we want to add some dependencies to our app. In Go, that means adding `go.mod` and `go.sum`. See below for examples in [Python](#more-examples), [Javascript](#more-examples) and [Java](#more-examples).
@@ -93,10 +93,10 @@ For a primer into Dockerfile layer caching see [this article](https://pythonspee
 <details open>
 <summary>Javascript</summary>
 
-To copy the files for [this example ( Part 2 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/js/part3) run
+To copy the files for [this example ( Part 2 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/js/part2) run
 
 ```bash
-earthly --artifact github.com/earthly/earthly/examples/tutorial/js:main+part3/part3 ./part3
+earthly --artifact github.com/earthly/earthly/examples/tutorial/js:main+part2/part2 ./part2
 ```
 `./package.json`
 
@@ -191,10 +191,10 @@ docker:
 <details open>
 <summary>Java</summary>
 
-To copy the files for [this example ( Part 2 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/java/part3) run
+To copy the files for [this example ( Part 2 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/java/part2) run
 
 ```bash
-earthly --artifact github.com/earthly/earthly/examples/tutorial/java:main+part3/part3 ./part3
+earthly --artifact github.com/earthly/earthly/examples/tutorial/java:main+part2/part2 ./part2
 ```
 
 `./build.gradle`
@@ -273,10 +273,10 @@ docker:
 <details open>
 <summary>Python</summary>
 
-To copy the files for [this example ( Part 2 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/python/part3) run
+To copy the files for [this example ( Part 2 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/python/part2) run
 
 ```bash
-earthly --artifact github.com/earthly/earthly/examples/tutorial/python:main+part3/part3 ./part3
+earthly --artifact github.com/earthly/earthly/examples/tutorial/python:main+part2/part2 ./part2
 ```
 
 `./requirements.txt`

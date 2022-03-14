@@ -1,0 +1,9 @@
+VERSION 0.6
+FROM python:3
+WORKDIR /code
+
+deps:
+    RUN pip install wheel
+    COPY requirements.txt ./
+    RUN pip wheel -r requirements.txt --wheel-dir=wheels
+    SAVE ARTIFACT wheels /wheels

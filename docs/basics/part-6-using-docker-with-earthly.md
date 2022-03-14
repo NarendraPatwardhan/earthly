@@ -1,3 +1,9 @@
+To copy the files for [this example ( Part 6 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/go/part6) run
+
+```bash
+earthly --artifact github.com/earthly/earthly/examples/tutorial/go:main+part6/part6 ./part6
+```
+
 Examples in [Python](#more-examples), [Javascript](#more-examples) and [Java](#more-examples) are at the bottom of this page.
 
 ## The WITH DOCKER Command
@@ -142,10 +148,10 @@ When we use the `--compose` flag, Earthly will start up the services defined in 
 <details open>
 <summary>Python</summary>
 
-To copy the files for [this example ( Part 2 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/python/part3) run
+To copy the files for [this example ( Part 6 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/python/part6) run
 
 ```bash
-earthly --artifact github.com/earthly/earthly/examples/tutorial/python:main+part3/part3 ./part3
+earthly --artifact github.com/earthly/earthly/examples/tutorial/python:main+part6/part6 ./part6
 ```
 ## Using Docker Compose
 ```yml
