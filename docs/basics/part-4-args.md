@@ -2,7 +2,7 @@ Examples in [Python](#more-examples), [Javascript](#more-examples) and [Java](#m
 
 `ARGS` in Earthly work similar to `ARGS` in Dockerfiles, however there are a few differences when it comes to scope. Also, Earthly has a number ob [built in ARGS]() that are available to use.
 
-Let's say we wanted to have the option to pass in a tag for our Docker image.
+Let's say we wanted to have the option to pass in a tag for our Docker image when we run `earthly +docker`.
 
 ```Dockerfile
 VERSION 0.6
@@ -28,9 +28,9 @@ docker:
     ENTRYPOINT ["/go-example/go-example"]
     SAVE IMAGE go-example:$tag
 ```
-In our docker target we can create an `ARG` called tag. In this case, we give it a default value of `latest`. If we do not provide a default value the default will be an empty string.
+In our `+docker` target we can create an `ARG` called tag. In this case, we give it a default value of `latest`. If we do not provide a default value the default will be an empty string.
 
-Then, down in our `SAVE IMAGE` we are able to reference the `ARG` with `$`.
+Then, down in our `SAVE IMAGE` command we are able to reference the `ARG` with `$` followed by the `ARG` name.
 
 Now we can take advantage of this when we run Earthly.
 
@@ -45,7 +45,7 @@ earthly +docker
 ```
 
 ### Passing ARGS in FROM, BUILD, and COPY
-We can also pass `ARG`s when referancing a target inside an Earthfile. Using the FROM and BUILD commands, this looks pretty ismilar to what we did above.
+We can also pass `ARG`s when referancing a target inside an Earthfile. Using the `FROM` and `BUILD` commands, this looks pretty similar to what we did above on the command line.
 
 ```Dockerfile
 docker:
@@ -60,7 +60,7 @@ with-build:
 with-from:
     FROM +docker --tag='my-new-image-tag'
 ```
-We can also pass ARGS when using the COPY command, though the syntax is a little different.
+We can also pass `ARGS` when using the `COPY` command, though the syntax is a little different.
 
 ```Dockerfile
 docker:
@@ -70,22 +70,20 @@ docker:
     SAVE IMAGE go-example:$tag
 
 with-copy:
-    COPY (+docker --tag='my-new-image-tag')
+    COPY (+build/go-example --tag='my-new-image-tag') .
 ```
 
+## Builtin ARGS
+There are a number of builtin`ARG`s that Earthly offers. You can read about a [complete list of them](https://docs.earthly.dev/docs/earthfile/builtin-args), but for now let's take a look at how they work.
 
-
-
-
-## Built in ARGS
-There are a number of built in`ARG`s that Earthly offers. You can read about a [complete list of them](https://docs.earthly.dev/docs/earthfile/builtin-args), but for now let's take a look at how they work.
-
-In order to use Earthly built in `ARGS` they need to be pre-declared. Once you do that, you can use them just like any other `ARG`.
+**In order to use Earthly builtin `ARGS` they need to be pre-declared. Once you do that, you can use them just like any other `ARG`.**
 
 ```Dockerfile
 ARG USERARCH
 RUN echo $USERARCH
 ```
+In this case we've declared the build in `ARG` `USERARCH` which is a builtin holds the processor architecture the target is being built from.
+
 
 ## More Examples
 

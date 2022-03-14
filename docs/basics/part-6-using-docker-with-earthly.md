@@ -17,10 +17,10 @@ hello:
     END
 
 ```
-You can see in the command above that we can pass a flag to `WITH DOCKER` telling it to pull an image from Docker Hub. We can pass other flags to load in artifacts build by other targets `--load` or even images defined by docker-compose `--compose`. These images will be available within the context of `WITH DOCKER`'s docker daemon.
+You can see in the command above that we can pass a flag to `WITH DOCKER` telling it to pull an image from Docker Hub. We can pass other flags to load in artifacts built by other targets `--load` or even images defined by docker-compose `--compose`. These images will be available within the context of `WITH DOCKER`'s docker daemon.
 
 ### Loading an Image
-We can also load in an image created by another target.
+We can load in an image created by another target with the `--load` flag.
 
 ```Dockerfile
 my-hello-world:
@@ -37,13 +37,11 @@ hello:
 
 ## A Real World Example
 
-One common use case for `WITH DOCKER` is running integration tests that require other services. In this case we might need to set up a database in addition to our application.
+One common use case for `WITH DOCKER` is running integration tests that require other services. In this case we need to set up a redis service for our tests.
 
-TODO: 
-1. Learn how to write go tests and get this example to work
-2. Write a more detailed breakdown of these files.
-3. Create examples for Java, javascript and Python (steal this one from Circle Ci article)
 ### Using Docker Compose
+
+`docker-compose.yml`
 ```yml
 version: "3"
 services:
@@ -129,12 +127,6 @@ docker:
     ENTRYPOINT ["/go-example/go-example"]
     SAVE IMAGE --push earthly/examples:go
 
-unit-test:
-    FROM +deps
-    COPY main.go .
-    COPY main_test.go .
-    RUN CGO_ENABLED=0 go test github.com/earthly/earthly/examples/go
-
 integration-test:
     FROM +deps
     COPY main.go .
@@ -143,14 +135,8 @@ integration-test:
     WITH DOCKER --compose docker-compose.yml
         RUN CGO_ENABLED=0 go test github.com/earthly/earthly/examples/go
     END
-
-all:
-  BUILD +build
-  BUILD +unit-test
-  BUILD +integration-test
-  BUILD +docker
-
 ```
+When we use the `--compose` flag, Earthly will start up the services defined in the `docker-compose` file for us. 
 
 ## More Examples
 <details open>

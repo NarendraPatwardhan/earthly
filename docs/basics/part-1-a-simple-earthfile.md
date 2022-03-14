@@ -28,10 +28,18 @@ docker:
 
 Throughout this tutorial, we'll build up this example Earthfile from scratch and then add even more to it. By the end you'll have a better grasp of how Earthly works and the power and repeatability it can bring to your build process.
 
-## Creating an Earthfile
+## Creating Your First Earthfile
 
-Let's start with two files in our working directory.
- `main.go`
+We'll slowly build up to the Earthfile we have above. Let's start with these first three lines.
+
+`Earthfile`
+```Dockerfile
+VERSION 0.6
+FROM golang:1.15-alpine3.13
+WORKDIR /go-example
+```
+And some simple Hello World code in a `main.go`.
+
 ```go
 package main
 
@@ -41,18 +49,11 @@ func main() {
 	fmt.Println("hello world")
 }
 ```
-`Earthfile`
-```Dockerfile
-VERSION 0.6
-FROM golang:1.15-alpine3.13
-WORKDIR /go-example
-```
-
 Earthfiles are always named Earthfile, regardless of their location in the codebase. 
 The Earthfile starts off with a version definition. This will tell Earthly which features to enable and which ones not to so that the build script maintains compatibility over time, even if Earthly itself is updated.
 
 
-The first commands in the file are part of the `base` target and are implicitly inherited by all other targets. Targets are just sets of instructions we can call on from within the Earthfile, or when we run earthly at the command line. Targets need an environment to run in. These environments come in the form of Docker images. In this case we are saying that all the instructions in our Earthfile will use `golang:1.15-alpine3.13`, [unless we specify otherwise](#target-environments). (More on this in a bit.)
+The first commands in the file are part of the `base` target and are implicitly inherited by all other targets. Targets are just sets of instructions we can call on from within the Earthfile, or when we run Earthly at the command line. Targets need an environment to run in. These environments come in the form of Docker images. In this case we are saying that all the instructions in our Earthfile will use `golang:1.15-alpine3.13`, [unless we specify otherwise](#target-environments). (More on this in a bit.)
 
 Lastly, we change our working directory to `/go-example`.
 
@@ -82,17 +83,13 @@ docker:
     ENTRYPOINT ["/go-example/go-example"]
     SAVE IMAGE go-example:latest
 ```
-Here we the artifact `/go-example` produced by another target, `+build`, to the current directory within the build environment. Set the entrypoint for the resulting docker image.
+Here we copy the artifact `/go-example` produced by another target, `+build`, to the current directory within the build environment. Set the entrypoint for the resulting docker image.
 
 You may notice the command `COPY +build/... ...`, which has an unfamiliar form. This is a special type of `COPY`, which can be used to pass artifacts from one target to another. In this case, the target `build` (referenced as `+build`) produces an artifact, which has been declared with `SAVE ARTIFACT`, and the target `docker` copies that artifact in its build environment.
 
 With Earthly you have the ability to pass such artifacts or images between targets within the same Earthfile, but also across different Earthfiles across directories or even across repositories. To read more about this, see the [target, artifact and image referencing guide](../guides/target-ref.md) or jump to [part 5](./part-5-importing.md) of this guide.
 
-Lastly we save the current state as a docker image, which will have the docker tag `go-example:latest`. This image is only made available to the host's docker if the entire build succeeds.
-
-## Target Outputs
-TODO
-Which targets perform outputs and pushes and which targets don't.
+Lastly, we save the current state as a docker image, which will have the docker tag `go-example:latest`. This image is only made available to the host's docker if the entire build succeeds.
 
 ## Target Environments
 
@@ -118,11 +115,11 @@ npm:
 
 In this example, the `+build` target does not have a `FROM`, so it inherits from the base target, `golang:1.15-alpine3.13`. 
 
-The target `+npm`, on the other hand, specifies its won enviorment with the `FROM`command and so will run inside of a `node:12-alpine3.12` container.
+The target `+npm`, on the other hand, specifies its own environment with the `FROM`command and so will run inside of a `node:12-alpine3.12` container.
 
 ## Running the build
 
-In the example `Earthfile` we have defined two explicit targets: `+build` and `+docker`. When we run Earthly, we can tell it to execute either target by passing the target name. In this case our docker target calls on our build target, so we can run both with:
+In the example `Earthfile` we have defined two explicit targets: `+build` and `+docker`. **We can tell Earthly to execute a target by passing typing a plus sign (+) followed by the target name.** In this case our docker target calls on our build target, so we can run both with:
 
 ```bash
 earthly +docker

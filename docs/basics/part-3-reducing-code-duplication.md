@@ -9,7 +9,7 @@ Examples in [Python](#more-examples), [Javascript](#more-examples) and [Java](#m
 
 ## Reusing Dependencies
 
-In some cases, the dependencies might be used in more than one build target. For this use case, we might want to separate dependency downloading and reuse it. For this reason, let's consider breaking this out into a separate build target, called `deps`. We can then inherit from `deps` by using the command `FROM +deps`.
+In some cases, the dependencies might be used in more than one build target. For this use case, we might want to separate dependency downloading and reuse it. For this reason, let's consider breaking this out into a separate target, called `+deps`. We can then inherit from `+deps` by using the command `FROM +deps`.
 
 
 `./Earthfile`

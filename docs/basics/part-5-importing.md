@@ -31,9 +31,9 @@ build:
     RUN go build -o build/go-example main.go
     SAVE ARTIFACT build/go-example /go-example AS LOCAL build/go-example
 ```
-This code tells `FROM` that there is another Earthfile in  the `services/service-one` directory and that the Earthfile  contains a target called `+deps`. In this case, if we were to run `+build` Earthly is smart enough to go into the subdirectory, run the  `+deps` target in that Earthfile, and then use it as a the base image for `+build`.
+This code tells `FROM` that there is another Earthfile in  the `services/service-one` directory and that the Earthfile  contains a target called `+deps`. In this case, if we were to run `+build` Earthly is smart enough to go into the subdirectory, run the  `+deps` target in that Earthfile, and then use it as the base image for `+build`.
 
-We can also reference an Earthfile in another repo like this, which works much the same way.
+We can also reference an Earthfile in another repo, which works in a similar way.
 
 ```Dockerfile
 build:
@@ -60,7 +60,7 @@ build:
 ```
 In this example, we assume there is a `service` directory that contains its own Earthfile. We import it and then use the `AS` keyword to give it an alias.
 
-Then, in our `+build` target we can inherit from any target in the imported Earthfile by passing <alias>+<target-name>. In this case the Earthfile in the service directory has a target named `+docker`.
+Then, in our `+build` target we can inherit from any target in the imported Earthfile by passing `alias+target-name`. In this case the Earthfile in the service directory has a target named `+docker`.
 
 ## More Examples
 
