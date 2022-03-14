@@ -3,7 +3,7 @@ FROM node:13.10.1-alpine3.11
 WORKDIR /js-example
 
 build:
-    FROM +deps
+    FROM ./services/service-one+deps
     COPY src src
     RUN mkdir -p ./dist && cp ./src/index.html ./dist/
     RUN npx webpack
