@@ -62,7 +62,6 @@ Earthly aims to replace Dockerfile, makefile, bash scripts and more. We can take
 
 Let's start by defining a target to build our simple Go app. **When we run Earthly, we can tell it to execute a target by passing a plus for target (+) and then the target name.** So we'll be able to run our target with `earthly +build`.
 
-
 ```Dockerfile
 build:
     COPY main.go .
@@ -124,7 +123,6 @@ In the example `Earthfile` we have defined two explicit targets: `+build` and `+
 ```bash
 earthly +docker
 ```
-
 The output might look like this:
 
 ![Earthly build output](../guides/img/go-example.png)

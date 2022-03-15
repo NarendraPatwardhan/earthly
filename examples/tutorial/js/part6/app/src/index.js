@@ -4,16 +4,14 @@ async function getUsers() {
     return await response.json();
 }
 
-// function component() {
-//     const element = document.createElement('div');
-//     getUsers()
-//         .then( users => {
-//             element.innerHTML = `hello world <b>${users[0].first_name} ${users[0].last_name}</b>`
-//             console.log(users)
-//         })
-//     return element;
-// }
+function component() {
+  const element = document.createElement('div');
+  getUsers()
+    .then( users => {
+      element.innerHTML = `hello world <b>${users[0].first_name} ${users[0].last_name}</b>`
+    })
 
-// document.body.appendChild(component());
+	return element;
+}
 
-module.exports = getUsers
+document.body.appendChild(component());

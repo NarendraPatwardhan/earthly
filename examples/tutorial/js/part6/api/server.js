@@ -6,15 +6,15 @@ bodyParser = require("body-parser");
 port = 3080;
 
 app.use(bodyParser.json());
-// app.use(express.static(path.join(__dirname, '../my-app/build')));
+app.use(express.static(path.join(__dirname, '../my-app/build')));
 
 app.use(cors());
 
 const users = [
-    {
-        'first_name': 'Lee',
-        'last_name' : 'Earth'
-    }
+	{
+		'first_name': 'Lee',
+		'last_name' : 'Earth'
+	}
 ]
 
 app.get('/api/users', (req, res) => {
@@ -23,5 +23,5 @@ app.get('/api/users', (req, res) => {
 });
 
 app.listen(port, 'localhost', () => {
-    console.log(`Server listening on the port::${port}`);
+  console.log(`Server listening on the port::${port}`);
 });

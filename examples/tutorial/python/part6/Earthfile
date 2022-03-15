@@ -14,15 +14,15 @@ build:
     SAVE ARTIFACT src /src
 
 test:
-  FROM +build
-  COPY ./docker-compose.yml .
-  COPY ./tests ./tests
-  RUN apt-get update
-  RUN apt-get install -y postgresql-client
-  WITH DOCKER --compose docker-compose.yml
-      RUN while ! pg_isready --host=localhost --port=5432; do sleep 1; done ;\
-        python tests/test_db_connection.py
-  END
+	FROM earthly/dind:alpine
+	COPY ./docker-compose.yml .
+	COPY ./tests ./tests
+	RUN apt-get update
+	RUN apt-get install -y postgresql-client
+	WITH DOCKER --compose docker-compose.yml
+		RUN while ! pg_isready --host=localhost --port=5432; do sleep 1; done ;\
+			python tests/test_db_connection.py
+	END
 
 docker:
     COPY +deps/wheels wheels

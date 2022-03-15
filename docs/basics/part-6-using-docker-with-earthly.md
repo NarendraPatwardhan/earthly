@@ -191,3 +191,208 @@ test:
 ## Loading an Image from Another Target
 
 </details>
+
+<details open>
+<summary>JS</summary>
+To copy the files for [this example ( Part 6 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/js/part6) run
+
+```bash
+earthly --artifact github.com/earthly/earthly/examples/tutorial/js:main+part6/part6 ./part6
+```
+In this example, we use `WITH DOCKER` to run a frontend app and backend api together using Earthly.
+
+The App
+
+`./app/package.json`
+
+```json
+{
+  "name": "example-js",
+  "version": "0.0.1",
+  "description": "Hello world",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MPL-2.0",
+  "devDependencies": {
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
+  },
+  "dependencies": {
+    "http-server": "^0.12.1"
+  }
+}
+```
+
+`./app/package-lock.json` (empty)
+
+```json
+```
+
+The code of the app might look like this
+
+`./app/src/index.js`
+
+```js
+async function getUsers() {
+
+    const response = await fetch('http://localhost:3080/api/users');
+    return await response.json();
+}
+
+function component() {
+  const element = document.createElement('div');
+  getUsers()
+    .then( users => {
+      element.innerHTML = `hello world <b>${users[0].first_name} ${users[0].last_name}</b>`
+    })
+
+	return element;
+}
+
+document.body.appendChild(component());
+```
+
+`./app/src/index.html`
+
+```html
+<!doctype html>
+<html>
+
+<head>
+    <title>Getting Started</title>
+</head>
+
+<body>
+    <script src="./main.js"></script>
+</body>
+
+</html>
+```
+And our api.
+
+`./api/package.json`
+
+```json
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "http-proxy-middleware": "^1.0.4",
+    "pg": "^8.7.3"
+  }
+}
+```
+`./api/package-lock.json` (empty)
+
+```json
+```
+`./api/server.js`
+
+```js
+const express = require('express');
+const path = require('path');
+const cors = require("cors");
+const app = express(),
+bodyParser = require("body-parser");
+port = 3080;
+
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, '../my-app/build')));
+
+app.use(cors());
+
+const users = [
+	{
+		'first_name': 'Lee',
+		'last_name' : 'Earth'
+	}
+]
+
+app.get('/api/users', (req, res) => {
+  console.log('api/users called!')
+  res.json(users);
+});
+
+app.listen(port, 'localhost', () => {
+  console.log(`Server listening on the port::${port}`);
+});
+```
+
+The `Earthfile` is at the root of the directory.
+
+`./Earthfile`
+
+```Dockerfile
+VERSION 0.6
+FROM node:13.10.1-alpine3.11
+WORKDIR /js-example
+
+app-deps:
+    COPY ./app/package.json ./
+    COPY ./app/package-lock.json ./
+    RUN npm install
+    # Output these back in case npm install changes them.
+    SAVE ARTIFACT package.json AS LOCAL ./app/package.json
+    SAVE ARTIFACT package-lock.json AS LOCAL ./app/package-lock.json
+
+build-app:
+    FROM +app-deps
+    COPY ./app/src ./app/src
+    RUN mkdir -p ./app/dist && cp ./app/src/index.html ./app/dist/
+    RUN cd ./app && npx webpack
+    SAVE ARTIFACT ./app/dist /dist AS LOCAL ./app/dist
+
+app-docker:
+    FROM +app-deps
+    ARG tag='latest'
+    COPY +build-app/dist ./app/dist
+    EXPOSE 8080
+    ENTRYPOINT ["/js-example/node_modules/http-server/bin/http-server", "./app/dist"]
+    SAVE IMAGE js-example:$tag
+
+api-deps:
+    COPY ./api/package.json ./
+    COPY ./api/package-lock.json ./
+    RUN npm install
+    # Output these back in case npm install changes them.
+    SAVE ARTIFACT package.json AS LOCAL ./api/package.json
+    SAVE ARTIFACT package-lock.json AS LOCAL ./api/package-lock.json
+
+api-docker:
+    FROM +api-deps
+    ARG tag='latest'
+    COPY ./api/server.js .
+    RUN pwd
+    RUN ls
+    EXPOSE 3080
+    ENTRYPOINT ["node", "server.js"]
+    SAVE IMAGE js-api:$tag
+
+# Run your app and api side by side
+app-with-api:
+    FROM earthly/dind:alpine
+    RUN apk add curl
+    WITH DOCKER \
+        --load app:latest=+app-docker \
+        --load api:latest=+api-docker
+        RUN docker run -d --network host api && \
+            docker run -d -p 8080:8080 app  && \
+            sleep 5 && \
+            curl localhost:8080 | grep 'Getting Started' && \
+            curl localhost:3080/api/users | grep 'Earth'
+    END
+```
+Now you can run `earthly -P +app-with-api` to run the app and api side-by-side.
+</details>
