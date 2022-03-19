@@ -188,8 +188,6 @@ test:
         python manage.py test
   END
 ```
-## Loading an Image from Another Target
-
 </details>
 
 <details open>

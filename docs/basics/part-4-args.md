@@ -6,7 +6,7 @@ earthly --artifact github.com/earthly/earthly/examples/tutorial/go:main+part4/pa
 
 Examples in [Python](#more-examples), [Javascript](#more-examples) and [Java](#more-examples) are at the bottom of this page.
 
-`ARGS` in Earthly work similar to `ARGS` in Dockerfiles, however there are a few differences when it comes to scope. Also, Earthly has a number ob [built in ARGS]() that are available to use.
+`ARG`s in Earthly work similar to `ARG`s in Dockerfiles, however there are a few differences when it comes to scope. Also, Earthly has a number ob [built in `ARG`s](../earthfile/) that are available to use.
 
 Let's say we wanted to have the option to pass in a tag for our Docker image when we run `earthly +docker`.
 
@@ -51,7 +51,7 @@ earthly +docker
 ```
 
 ### Passing ARGS in FROM, BUILD, and COPY
-We can also pass `ARG`s when referancing a target inside an Earthfile. Using the `FROM` and `BUILD` commands, this looks pretty similar to what we did above on the command line.
+We can also pass `ARG`s when referencing a target inside an Earthfile. Using the `FROM` and `BUILD` commands, this looks pretty similar to what we did above on the command line.
 
 ```Dockerfile
 docker:
