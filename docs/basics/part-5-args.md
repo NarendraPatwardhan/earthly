@@ -6,7 +6,7 @@ earthly --artifact github.com/earthly/earthly/examples/tutorial/go:main+part4/pa
 
 Examples in [Python](#more-examples), [Javascript](#more-examples) and [Java](#more-examples) are at the bottom of this page.
 
-`ARG`s in Earthly work similar to `ARG`s in Dockerfiles, however there are a few differences when it comes to scope. Also, Earthly has a number ob [built in `ARG`s](../earthfile/) that are available to use.
+`ARG`s in Earthly work similar to `ARG`s in Dockerfiles, however there are a few differences when it comes to scope. Also, Earthly has a number of [built in ARGs](../earthfile/builtin-args.md) that are available to use.
 
 Let's say we wanted to have the option to pass in a tag for our Docker image when we run `earthly +docker`.
 
@@ -69,14 +69,14 @@ with-from:
 We can also pass `ARGS` when using the `COPY` command, though the syntax is a little different.
 
 ```Dockerfile
-docker:
-    ARG tag='latest'
-    COPY +build/go-example .
-    ENTRYPOINT ["/go-example/go-example"]
-    SAVE IMAGE go-example:$tag
+build:
+    ARG VERSION
+    COPY main.go .
+    RUN go build -o build/go-example-$VERSION main.go
+    SAVE ARTIFACT build/go-example-$VERSION /go-example AS LOCAL build/go-example
 
 with-copy:
-    COPY (+build/go-example --tag='my-new-image-tag') .
+    COPY (+build/go-example --VERSION='my-new-image-tag') .
 ```
 
 ## Builtin ARGS

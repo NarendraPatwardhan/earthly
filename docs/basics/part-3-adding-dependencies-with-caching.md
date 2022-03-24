@@ -1,6 +1,4 @@
 
-# Adding dependencies
-
 To copy the files for [this example ( Part 2 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/go/part2) run
 
 ```bash

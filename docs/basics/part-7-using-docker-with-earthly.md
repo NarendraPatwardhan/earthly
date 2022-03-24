@@ -122,20 +122,21 @@ deps:
     SAVE ARTIFACT go.mod AS LOCAL go.mod
     SAVE ARTIFACT go.sum AS LOCAL go.sum
 
-build:
-    FROM +deps
-    COPY main.go .
-    RUN go build -o build/go-example main.go
-    SAVE ARTIFACT build/go-example /go-example AS LOCAL build/go-example
-
-integration-test:
+test-setup:
     FROM +deps
     COPY main.go .
     COPY main_integration_test.go .
+    ENV CGO_ENABLED=0
+    ENTRYPOINT [ "go", "test", "github.com/earthly/earthly/examples/go"]
+    SAVE IMAGE test:latest
+
+integration-tests:
+    FROM earthly/dind:alpine
     COPY docker-compose.yml ./
-    WITH DOCKER --compose docker-compose.yml
-        RUN CGO_ENABLED=0 go test github.com/earthly/earthly/examples/go
+    WITH DOCKER --compose docker-compose.yml --load tests:latest=+test-setup
+        RUN docker run --network=host tests 
     END
+
 ```
 When we use the `--compose` flag, Earthly will start up the services defined in the `docker-compose` file for us. 
 
@@ -148,7 +149,27 @@ To copy the files for [this example ( Part 6 )](https://github.com/earthly/earth
 ```bash
 earthly --artifact github.com/earthly/earthly/examples/tutorial/python:main+part6/part6 ./part6
 ```
-## Using Docker Compose
+`./tests/test_db_connection.py`
+
+```python
+import unittest
+import psycopg2
+
+class MyIntegrationTests(unittest.TestCase):
+
+    def test_db_connection_active(self):
+        connection = psycopg2.connect(
+            host="localhost",
+            database="test_db",
+            user="earthly",
+            password="password")
+        
+        self.assertEqual(connection.closed, 0)
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
 ```yml
 version: "3.9"
    
@@ -158,10 +179,9 @@ services:
     container_name: db
     hostname: postgres
     environment:
-      - POSTGRES_NAME=my_mediamy_db
-      - POSTGRES_USER=example
-      - POSTGRES_PASSWORD=1234
-      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_DB=test_db
+      - POSTGRES_USER=earthly
+      - POSTGRES_PASSWORD=password
     ports:
       - 5432:5432
 ```

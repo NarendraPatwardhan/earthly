@@ -1,7 +1,7 @@
 package main
 
-import "github.com/sirupsen/logrus"
+import "fmt"
 
 func main() {
-	logrus.Info("hello world")
+	fmt.Println("hello world")
 }
