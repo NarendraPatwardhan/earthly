@@ -57,6 +57,7 @@ REPOSITORY          TAG       IMAGE ID       CREATED          SIZE
 go-example          latest    08b9f749023d   19 seconds ago   297MB
 ```
 **NOTE**
+
 If we run a target as a reference in `FROM` or `COPY`, outputs will not be produced.
 ```Dockerfile
 build:
@@ -84,9 +85,10 @@ another-target:
 ```
 Running `earthly +another-target` in this case, will still output `build/go-example` locally.
 
-### Pushing Remotely
+## Pushing
 
-#### Docker
+### Docker 
+
 In addition to saving files and images locally, we can also push them to remote repositories.
 
 ```Dockerfile
@@ -129,4 +131,5 @@ apply:
 earthly --push +apply
 ```
 **NOTE**
+
 Just like saving files, any command that uses `--push` will only produce output if called directly, `earthly --push +target-with-push` or via a `BUILD` command. Calling a target via `FROM` or `COPY` will not invoke `--push`.
