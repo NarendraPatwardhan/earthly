@@ -19,8 +19,7 @@ build:
 
 docker:
     FROM +deps
-    ARG tag='latest'
     COPY +build/dist ./dist
     EXPOSE 8080
     ENTRYPOINT ["/js-example/node_modules/http-server/bin/http-server", "./dist"]
-    SAVE IMAGE js-example:$tag
+    SAVE IMAGE js-example:latest

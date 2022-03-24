@@ -1,7 +1,7 @@
-To copy the files for [this example ( Part 6 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/go/part6) run
+To copy the files for [this example ( Part 7 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/go/part7) run
 
 ```bash
-earthly --artifact github.com/earthly/earthly/examples/tutorial/go:main+part6/part6 ./part6
+earthly --artifact github.com/earthly/earthly/examples/tutorial/go:main+part7/part7 ./part7
 ```
 
 Examples in [Python](#more-examples), [Javascript](#more-examples) and [Java](#more-examples) are at the bottom of this page.
@@ -141,81 +141,13 @@ integration-tests:
 When we use the `--compose` flag, Earthly will start up the services defined in the `docker-compose` file for us. 
 
 ## More Examples
-<details open>
-<summary>Python</summary>
-
-To copy the files for [this example ( Part 6 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/python/part6) run
-
-```bash
-earthly --artifact github.com/earthly/earthly/examples/tutorial/python:main+part6/part6 ./part6
-```
-`./tests/test_db_connection.py`
-
-```python
-import unittest
-import psycopg2
-
-class MyIntegrationTests(unittest.TestCase):
-
-    def test_db_connection_active(self):
-        connection = psycopg2.connect(
-            host="localhost",
-            database="test_db",
-            user="earthly",
-            password="password")
-        
-        self.assertEqual(connection.closed, 0)
-
-if __name__ == '__main__':
-    unittest.main()
-```
-
-```yml
-version: "3.9"
-   
-services:
-  db:
-    image: postgres
-    container_name: db
-    hostname: postgres
-    environment:
-      - POSTGRES_DB=test_db
-      - POSTGRES_USER=earthly
-      - POSTGRES_PASSWORD=password
-    ports:
-      - 5432:5432
-```
-
-`./Earthfile`
-
-```Dockerfile
-VERSION 0.6
-FROM python:3
-WORKDIR /code
-
-build:
-  COPY ./requirements.txt .
-  RUN pip install -r requirements.txt
-  COPY . .
-
-test:
-  FROM +build
-  COPY ./docker-compose.yml .
-  RUN apt-get update
-  RUN apt-get install -y postgresql-client
-  WITH DOCKER --compose docker-compose.yml
-      RUN while ! pg_isready --host=localhost --port=5432 --dbname=my_db --username=example; do sleep 1; done ;\
-        python manage.py test
-  END
-```
-</details>
 
 <details open>
 <summary>JS</summary>
-To copy the files for [this example ( Part 6 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/js/part6) run
+To copy the files for [this example ( Part 7 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/js/part7) run
 
 ```bash
-earthly --artifact github.com/earthly/earthly/examples/tutorial/js:main+part6/part6 ./part6
+earthly --artifact github.com/earthly/earthly/examples/tutorial/js:main+part7/part7 ./part7
 ```
 In this example, we use `WITH DOCKER` to run a frontend app and backend api together using Earthly.
 
@@ -405,7 +337,7 @@ app-with-api:
     WITH DOCKER \
         --load app:latest=+app-docker \
         --load api:latest=+api-docker
-        RUN docker run -d --network host api && \
+        RUN docker run -d --network=host api && \
             docker run -d -p 8080:8080 app  && \
             sleep 5 && \
             curl localhost:8080 | grep 'Getting Started' && \
@@ -413,4 +345,197 @@ app-with-api:
     END
 ```
 Now you can run `earthly -P +app-with-api` to run the app and api side-by-side.
+</details>
+
+<details open>
+<summary>Java</summary>
+To copy the files for [this example ( Part 1 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/java/part1) run
+
+```bash
+mkdir tutorial
+cd tutorial
+earthly --artifact github.com/earthly/earthly/examples/tutorial/java:main+part1/part1 ./part1
+```
+
+`./Earthfile`
+
+```Dockerfile
+VERSION 0.6
+FROM openjdk:8-jdk-alpine
+RUN apk add --update --no-cache gradle
+WORKDIR /java-example
+
+deps:
+    COPY build.gradle ./
+    RUN gradle build
+
+build:
+    FROM +deps
+    COPY src src
+    RUN gradle build
+    RUN gradle install
+    SAVE ARTIFACT build/install/java-example/bin AS LOCAL build/bin
+    SAVE ARTIFACT build/install/java-example/lib AS LOCAL build/lib
+
+docker:
+    COPY +build/bin bin
+    COPY +build/lib lib
+    ARG tag='latest'
+    ENTRYPOINT ["/java-example/bin/java-example"]
+    SAVE IMAGE java-example:$tag
+
+integration-tests:
+    FROM earthly/dind:alpine
+	  COPY ./docker-compose.yml .
+	  RUN apk update
+	  RUN apk add postgresql-client
+	  WITH DOCKER --compose docker-compose.yml --load app:latest=+docker
+		    RUN while ! pg_isready --host=localhost --port=5432; do sleep 1; done ;\
+			  docker run --network=host app
+	  END
+```
+
+`docker-compose.yml`
+
+```yml
+version: "3.9"
+   
+services:
+  db:
+    image: postgres
+    container_name: db
+    hostname: postgres
+    environment:
+      - POSTGRES_DB=test_db
+      - POSTGRES_USER=earthly
+      - POSTGRES_PASSWORD=password
+    ports:
+      - 5432:5432
+
+```
+The code of the app might look like this
+
+`./src/main/java/hello/HelloWorld.java`
+
+```java
+
+package hello;
+
+import org.joda.time.LocalTime;
+import java.sql.Connection;
+import java.sql.DriverManager;
+
+public class PostgreSQLJDBC {
+   public static void main(String args[]) {
+      Connection c = null;
+      try {
+         Class.forName("org.postgresql.Driver");
+         c = DriverManager
+            .getConnection("jdbc:postgresql://localhost:5432/test_db",
+            "earthly", "password");
+      } catch (Exception e) {
+         e.printStackTrace();
+         System.err.println(e.getClass().getName()+": "+e.getMessage());
+         System.exit(0);
+      }
+      System.out.println("Opened database successfully");
+   }
+}
+
+
+`./build.gradle`
+
+```groovy
+apply plugin: 'java'
+apply plugin: 'application'
+
+mainClassName = 'hello.PostgreSQLJDBC'
+
+repositories {
+    mavenCentral()
+}
+
+jar {
+    baseName = 'hello-world'
+    version = '0.0.1'
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    compile "joda-time:joda-time:2.2"
+    compile(group: 'org.postgresql', name: 'postgresql', version: '42.3.3')
+}
+
+```
+</details>
+
+<details open>
+<summary>Python</summary>
+
+To copy the files for [this example ( Part 7 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/python/part7) run
+
+```bash
+earthly --artifact github.com/earthly/earthly/examples/tutorial/python:main+part7/part7 ./part7
+```
+`./tests/test_db_connection.py`
+
+```python
+import unittest
+import psycopg2
+
+class MyIntegrationTests(unittest.TestCase):
+
+    def test_db_connection_active(self):
+        connection = psycopg2.connect(
+            host="localhost",
+            database="test_db",
+            user="earthly",
+            password="password")
+        
+        self.assertEqual(connection.closed, 0)
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+```yml
+version: "3.9"
+   
+services:
+  db:
+    image: postgres
+    container_name: db
+    hostname: postgres
+    environment:
+      - POSTGRES_DB=test_db
+      - POSTGRES_USER=earthly
+      - POSTGRES_PASSWORD=password
+    ports:
+      - 5432:5432
+```
+
+`./Earthfile`
+
+```Dockerfile
+VERSION 0.6
+FROM python:3
+WORKDIR /code
+
+build:
+  COPY ./requirements.txt .
+  RUN pip install -r requirements.txt
+  COPY . .
+
+test:
+  FROM +build
+  COPY ./docker-compose.yml .
+  RUN apt-get update
+  RUN apt-get install -y postgresql-client
+  WITH DOCKER --compose docker-compose.yml
+      RUN while ! pg_isready --host=localhost --port=5432 --dbname=my_db --username=example; do sleep 1; done ;\
+        python manage.py test
+  END
+```
 </details>

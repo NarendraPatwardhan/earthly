@@ -4,10 +4,7 @@ RUN apk add --update --no-cache gradle
 WORKDIR /java-example
 
 build:
-    # Download deps before copying code.
     COPY build.gradle ./
-    RUN gradle build
-    # Copy and build code.
     COPY src src
     RUN gradle build
     RUN gradle install

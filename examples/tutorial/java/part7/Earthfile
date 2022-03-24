@@ -3,9 +3,12 @@ FROM openjdk:8-jdk-alpine
 RUN apk add --update --no-cache gradle
 WORKDIR /java-example
 
+deps:
+    COPY build.gradle ./
+    RUN gradle build
+
 build:
-    FROM ./services/service-one+deps
-    # Or, using the IMPORT above: FROM my-service+deps
+    FROM +deps
     COPY src src
     RUN gradle build
     RUN gradle install
@@ -18,3 +21,13 @@ docker:
     ARG tag='latest'
     ENTRYPOINT ["/java-example/bin/java-example"]
     SAVE IMAGE java-example:$tag
+
+integration-tests:
+    FROM earthly/dind:alpine
+	COPY ./docker-compose.yml .
+	RUN apk update
+	RUN apk add postgresql-client
+	WITH DOCKER --compose docker-compose.yml --load app:latest=+docker
+		RUN while ! pg_isready --host=localhost --port=5432; do sleep 1; done ;\
+			docker run --network=host app
+	END

@@ -1,7 +1,7 @@
-To copy the files for [this example ( Part 5 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/go/part5) run
+To copy the files for [this example ( Part 6 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/go/part6) run
 
 ```bash
-earthly --artifact github.com/earthly/earthly/examples/tutorial/go:main+part5/part5 ./part5
+earthly --artifact github.com/earthly/earthly/examples/tutorial/go:main+part6/part6 ./part6
 ```
 
 Examples in [Python](#more-examples), [Javascript](#more-examples) and [Java](#more-examples) are at the bottom of this page.
@@ -40,10 +40,10 @@ But `FROM` also has the ability to import targets from Earthfiles in different d
 └── Earthfile
 
 ```
-To copy the files for [this example ( Part 3 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/go/part5) run
+To copy the files for [this example ( Part 3 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/go/part6) run
 
 ```bash
-earthly --artifact github.com/earthly/earthly/examples/tutorial/go:main+part5/part5 ./part5
+earthly --artifact github.com/earthly/earthly/examples/tutorial/go:main+part6/part6 ./part6
 ```
 
 We can use a target in the Earthfile in `/service/services` from inside the Earthfile in the rood of our directory.
@@ -107,10 +107,10 @@ Then, in our `+build` target we can inherit from any target in the imported Eart
 <details open>
 <summary>Javascript</summary>
 
-To copy the files for [this example ( Part 3 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/js/part5) run
+To copy the files for [this example ( Part 3 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/js/part6) run
 
 ```bash
-earthly --artifact github.com/earthly/earthly/examples/tutorial/js:main+part5/part5 ./part5
+earthly --artifact github.com/earthly/earthly/examples/tutorial/js:main+part6/part6 ./part6
 ```
 
 Note that in our case, only the JavaScript version has an example where `FROM +deps` is used in more than one place: both in `build` and in `docker`. Nevertheless, all versions show how dependencies may be separated.
@@ -140,6 +140,9 @@ docker:
 
 </details>
 
+<details open>
+<summary>Java</summary>
+
 `./Earthfile`
 
 ```Dockerfile
@@ -167,14 +170,13 @@ docker:
 
 </details>
 
-
 <details open>
 <summary>Python</summary>
 
-To copy the files for [this example ( Part 5 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/python/part5) run
+To copy the files for [this example ( Part 6 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/python/part6) run
 
 ```bash
-earthly --artifact github.com/earthly/earthly/examples/tutorial/python:main+part5/part5 ./part5
+earthly --artifact github.com/earthly/earthly/examples/tutorial/python:main+part6/part6 ./part6
 ```
 
 `./Earthfile`

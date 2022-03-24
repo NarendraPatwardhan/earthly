@@ -57,8 +57,18 @@ test-part5:
 test-part6:
     BUILD +test-part \
         --lang=go \
+        --lang=js \
+        --lang=java \
         --lang=python \
         --part=part6
+
+test-part7:
+    BUILD +test-part \
+        --lang=go \
+        --lang=js \
+        --lang=java \
+        --lang=python \
+        --part=part7
 
 test-part:
     LOCALLY

@@ -18,6 +18,5 @@ build:
 docker:
     COPY +build/bin bin
     COPY +build/lib lib
-    ARG tag='latest'
     ENTRYPOINT ["/java-example/bin/java-example"]
-    SAVE IMAGE java-example:$tag
+    SAVE IMAGE java-example:latest

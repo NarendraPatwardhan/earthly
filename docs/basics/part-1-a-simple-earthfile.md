@@ -72,7 +72,7 @@ The first thing we do is copy our `main.go` from the build context (the director
 
 Next, we run a go build command against the previously copied `main.go` file.
 
-Finally, we save the output of the build command as an artifact called `/go-example` (it can be later referenced as `+build/go-example`). In addition, we store the artifact as a local file (on the host) named `build/go-example`. This local file is only written if the entire build succeeds.
+Finally, we save the output of the build command as an artifact called `/go-example` (it can be later referenced as `+build/go-example`).
 
 Now let's create a new target called `+docker`.
 
@@ -86,7 +86,7 @@ Here we copy the artifact `/go-example` produced by another target, `+build`, to
 
 You may notice the command `COPY +build/... ...`, which has an unfamiliar form. This is a special type of `COPY`, which can be used to pass artifacts from one target to another. In this case, the target `build` (referenced as `+build`) produces an artifact, which has been declared with `SAVE ARTIFACT`, and the target `docker` copies that artifact in its build environment.
 
-With Earthly you have the ability to pass such artifacts or images between targets within the same Earthfile, but also across different Earthfiles across directories or even across repositories. To read more about this, see the [target, artifact and image referencing guide](../guides/target-ref.md) or jump to [part 5](./part-5-importing.md) of this guide.
+With Earthly you have the ability to pass such artifacts or images between targets within the same Earthfile, but also across different Earthfiles across directories or even across repositories. To read more about this, see the [target, artifact and image referencing guide](../guides/target-ref.md) or jump to [part 6](./part-6-importing.md) of this guide.
 
 Lastly, we save the current state as a docker image, which will have the docker tag `go-example:latest`. This image is only made available to the host's docker if the entire build succeeds.
 
@@ -164,7 +164,7 @@ build:
     # In JS, there's nothing to build in this simple form.
     # The source is also the artifact used in production.
     COPY src/index.js .
-    SAVE ARTIFACT index.js /dist/index.js AS LOCAL ./dist/index.js
+    SAVE ARTIFACT index.js /dist/index.js
 
 docker:
     COPY +build/dist dist
@@ -206,8 +206,8 @@ build:
     COPY src src
     RUN gradle build
     RUN gradle install
-    SAVE ARTIFACT build/install/java-example/bin /bin AS LOCAL build/bin
-    SAVE ARTIFACT build/install/java-example/lib /lib AS LOCAL build/lib
+    SAVE ARTIFACT build/install/java-example/bin /bin
+    SAVE ARTIFACT build/install/java-example/lib /lib
 
 docker:
     COPY +build/bin bin
