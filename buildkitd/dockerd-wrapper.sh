@@ -76,7 +76,7 @@ start_dockerd() {
     fi
 
     daemon_data="$(cat /etc/docker/daemon.json)"
-    cat <<'EOF' | jq ". + $daemon_data" > /etc/docker/daemon.json
+    cat <<EOF | jq ". + $daemon_data" > /etc/docker/daemon.json
 {
     "default-address-pools" : [
         {
@@ -87,14 +87,16 @@ start_dockerd() {
             "base" : "172.22.0.0/16",
             "size" : 24
         }
-    ]
+    ],
+    "bip": "172.20.0.1/16",
+    "data-root": "$EARTHLY_DOCKERD_DATA_ROOT"
 }
 EOF
 
     # Start with a rm -rf to make sure a previous interrupted build did not leave its state around.
     rm -rf "$EARTHLY_DOCKERD_DATA_ROOT"
     mkdir -p "$EARTHLY_DOCKERD_DATA_ROOT"
-    dockerd --data-root="$EARTHLY_DOCKERD_DATA_ROOT" --bip=172.20.0.1/16 >/var/log/docker.log 2>&1 &
+    dockerd >/var/log/docker.log 2>&1 &
     dockerd_pid="$!"
     i=1
     timeout=300
