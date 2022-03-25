@@ -70,8 +70,13 @@ execute() {
 start_dockerd() {
     # Use a specific IP range to avoid collision with host dockerd (we need to also connect to host
     # docker containers for the debugger).
-    mkdir -p /etc/docker
-    cat <<'EOF' >/etc/docker/daemon.json
+    if ! [ -f /etc/docker/daemon.json ]; then
+        mkdir -p /etc/docker
+        echo >/etc/docker/daemon.json '{}'
+    fi
+
+    daemon_data="$(cat /etc/docker/daemon.json)"
+    cat <<'EOF' | jq ". + $daemon_data" > /etc/docker/daemon.json
 {
     "default-address-pools" : [
         {

@@ -20,6 +20,14 @@ detect_docker_compose() {
     return "$has_dc"
 }
 
+detect_jq() {
+    set +e
+    command -v jq
+    has_jq="$?"
+    set -e
+    return "$has_jq"
+}
+
 print_debug() {
     set +u
     if [ "$EARTHLY_DEBUG" = "true" ] ; then
@@ -110,8 +118,31 @@ install_dockerd_amazon() {
     esac
 }
 
+install_jq() {
+    case "$distro" in
+        alpine)
+            apk add --update --no-cache jq
+            ;;
+
+        amzn)
+            yum install jq
+            ;;
+
+        *)
+            export DEBIAN_FRONTEND=noninteractive
+            apt-get update
+            apt-get install -y jq
+            ;;
+    esac
+}
+
 if [ "$(id -u)" != 0 ]; then
     echo "Warning: Docker-in-Earthly needs to be run as root user"
+fi
+
+if ! detect_jq; then
+    echo "jq is missing. Attempting to install automatically."
+    install_jq
 fi
 
 if ! detect_dockerd; then
