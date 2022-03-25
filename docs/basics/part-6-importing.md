@@ -143,6 +143,13 @@ docker:
 <details open>
 <summary>Java</summary>
 
+To copy the files for [this example ( Part 6 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/java/part6) run
+
+```bash
+earthly --artifact github.com/earthly/earthly/examples/tutorial/java:main+part6/part6 ./part6
+```
+
+
 `./Earthfile`
 
 ```Dockerfile

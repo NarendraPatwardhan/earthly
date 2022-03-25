@@ -144,6 +144,7 @@ When we use the `--compose` flag, Earthly will start up the services defined in 
 
 <details open>
 <summary>JS</summary>
+
 To copy the files for [this example ( Part 7 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/js/part7) run
 
 ```bash
@@ -264,10 +265,10 @@ app.use(express.static(path.join(__dirname, '../my-app/build')));
 app.use(cors());
 
 const users = [
-	{
-		'first_name': 'Lee',
-		'last_name' : 'Earth'
-	}
+  {
+    'first_name': 'Lee',
+    'last_name' : 'Earth'
+  }
 ]
 
 app.get('/api/users', (req, res) => {
@@ -349,6 +350,7 @@ Now you can run `earthly -P +app-with-api` to run the app and api side-by-side.
 
 <details open>
 <summary>Java</summary>
+
 To copy the files for [this example ( Part 1 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/java/part1) run
 
 ```bash

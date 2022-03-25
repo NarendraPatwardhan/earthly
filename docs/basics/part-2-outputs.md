@@ -140,160 +140,6 @@ Just like saving files, any command that uses `--push` will only produce output 
 <details open>
 <summary>JavaScript</summary>
 
-To copy the files for [this example ( Part 2 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/js/part2) run
-
-```bash
-mkdir tutorial
-cd tutorial
-earthly --artifact github.com/earthly/earthly/examples/tutorial/js:main+part2/part2 ./part2
-```
-
-`./Earthfile`
-
-```Dockerfile
-VERSION 0.6
-FROM node:13.10.1-alpine3.11
-WORKDIR /js-example
-
-build:
-    # In JS, there's nothing to build in this simple form.
-    # The source is also the artifact used in production.
-    COPY src/index.js .
-    SAVE ARTIFACT index.js /dist/index.js AS LOCAL ./dist/index.js
-
-docker:
-    COPY +build/dist dist
-    ENTRYPOINT ["node", "./dist/index.js"]
-    SAVE IMAGE js-example:latest
-```
-
-The code of the app might look like this
-
-`./src/index.js`
-
-```js
-console.log("hello world");
-```
-
-</details>
-
-
-<details open>
-<summary>Java</summary>
-To copy the files for [this example ( Part 2 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/java/part2) run
-
-```bash
-mkdir tutorial
-cd tutorial
-earthly --artifact github.com/earthly/earthly/examples/tutorial/java:main+part2/part2 ./part2
-```
-
-`./Earthfile`
-
-```Dockerfile
-VERSION 0.6
-FROM openjdk:8-jdk-alpine
-RUN apk add --update --no-cache gradle
-WORKDIR /java-example
-
-build:
-    COPY build.gradle ./
-    COPY src src
-    RUN gradle build
-    RUN gradle install
-    SAVE ARTIFACT build/install/java-example/bin /bin AS LOCAL build/bin
-    SAVE ARTIFACT build/install/java-example/lib /lib AS LOCAL build/lib
-
-docker:
-    COPY +build/bin bin
-    COPY +build/lib lib
-    ENTRYPOINT ["/java-example/bin/java-example"]
-    SAVE IMAGE java-example:latest
-```
-
-The code of the app might look like this
-
-`./src/main/java/hello/HelloWorld.java`
-
-```java
-
-package hello;
-
-public class HelloWorld {
-    public static void main(String[] args) {
-        System.out.println("hello world");
-    }
-}
-```
-
-`./build.gradle`
-
-```groovy
-apply plugin: 'java'
-apply plugin: 'application'
-
-mainClassName = 'hello.HelloWorld'
-
-jar {
-    baseName = 'hello-world'
-    version = '0.0.1'
-}
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-```
-</details>
-
-<details open>
-<summary>Java</summary>
-
-
-</details>
-
-<details open>
-<summary>Python</summary>
-To copy the files for [this example ( Part 2 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/python/part2) run
-
-```bash
-mkdir tutorial
-cd tutorial
-earthly --artifact github.com/earthly/earthly/examples/tutorial/python:main+part2/part2 ./part2
-```
-
-`./Earthfile`
-
-```Dockerfile
-VERSION 0.6
-FROM python:3
-WORKDIR /code
-
-build:
-     # In Python, there's nothing to build.
-    COPY src src
-    SAVE ARTIFACT src /src
-
-docker:
-    COPY +build/src src
-    ENTRYPOINT ["python3", "./src/hello.py"]
-    SAVE IMAGE --push python-example:latest
-```
-
-`./src/hello.py`
-
-```python
-print("hello world")
-```
-Create and push the docker image.
-```bash
-earthly --push +docker
-```
-</details>
-
-
-### More Examples
-<details open>
-<summary>JavaScript</summary>
-
 To copy the files for [this example ( Part 1 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/js/part1) run
 
 ```bash
@@ -334,6 +180,7 @@ console.log("hello world");
 
 <details open>
 <summary>Java</summary>
+
 To copy the files for [this example ( Part 1 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/java/part1) run
 
 ```bash
@@ -401,6 +248,7 @@ targetCompatibility = 1.8
 
 <details open>
 <summary>Python</summary>
+
 To copy the files for [this example ( Part 1 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/python/part1) run
 
 ```bash

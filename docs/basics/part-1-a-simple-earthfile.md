@@ -1,13 +1,3 @@
-This tutorial focuses on using Earthly with a Go project, but you can find examples of Earthfiles for [Python](#more-examples), [Javascript](#more-examples) and [Java](#more-examples) at the bottom of each page.
-
-To copy the files for [this example ( Part 1 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/go/part1) run
-
-```bash
-mkdir tutorial
-cd tutorial
-earthly --artifact github.com/earthly/earthly/examples/tutorial/go:main+part1/part1 ./part1
-```
-## Getting Started
 Below you'll find a simple example of an Earthfile. All the magic of Earthly happens in the Earthfile, which you may notice is very similar to a Dockerfile. This is an intentional design decision. Existing Dockerfiles can easily be ported to Earthly by copying them to an Earthfile and tweaking them slightly.
 
 ```Dockerfile
@@ -27,6 +17,16 @@ docker:
 ```
 
 Throughout this tutorial, we'll build up this example Earthfile from scratch and then add even more to it. By the end you'll have a better grasp of how Earthly works and the power and repeatability it can bring to your build process.
+
+This tutorial focuses on using Earthly with a Go project, but you can find examples of Earthfiles for [Python](#more-examples), [Javascript](#more-examples) and [Java](#more-examples) at the bottom of each page.
+
+To copy the files for [this example ( Part 1 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/go/part1) run
+
+```bash
+mkdir tutorial
+cd tutorial
+earthly --artifact github.com/earthly/earthly/examples/tutorial/go:main+part1/part1 ./part1
+```
 
 ## Creating Your First Earthfile
 
@@ -185,6 +185,7 @@ console.log("hello world");
 
 <details open>
 <summary>Java</summary>
+
 To copy the files for [this example ( Part 1 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/java/part1) run
 
 ```bash
@@ -252,6 +253,7 @@ targetCompatibility = 1.8
 
 <details open>
 <summary>Python</summary>
+
 To copy the files for [this example ( Part 1 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/python/part1) run
 
 ```bash
