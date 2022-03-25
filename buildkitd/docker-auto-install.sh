@@ -86,10 +86,18 @@ install_dockerd() {
     esac
 }
 
+apt_update_done="false"
+apt_get_update() {
+    if [ "$apt_update_done" != "false" ]; then
+        apt-get update
+        apt_update_done=true
+    fi
+}
+
 install_dockerd_debian_like() {
     export DEBIAN_FRONTEND=noninteractive
     apt-get remove -y docker docker-engine docker.io containerd runc || true
-    apt-get update
+    apt_get_update
     apt-get install -y \
         apt-transport-https \
         ca-certificates \
@@ -101,7 +109,7 @@ install_dockerd_debian_like() {
         "deb [arch=$(dpkg --print-architecture)] https://download.docker.com/linux/$distro \
         $(lsb_release -cs) \
         stable"
-    apt-get update
+    apt-get update # dont use apt_get_update since we must update the newly added apt repo
     apt-get install -y docker-ce docker-ce-cli containerd.io
 }
 
@@ -130,7 +138,7 @@ install_jq() {
 
         *)
             export DEBIAN_FRONTEND=noninteractive
-            apt-get update
+            apt_get_update
             apt-get install -y jq
             ;;
     esac
