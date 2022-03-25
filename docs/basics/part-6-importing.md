@@ -40,16 +40,11 @@ But `FROM` also has the ability to import targets from Earthfiles in different d
 └── Earthfile
 
 ```
-To copy the files for [this example ( Part 3 )](https://github.com/earthly/earthly/tree/main/examples/tutorial/go/part6) run
+We can use a target in the Earthfile in `/service/services` from inside the Earthfile in the root of our directory.
 
-```bash
-earthly --artifact github.com/earthly/earthly/examples/tutorial/go:main+part6/part6 ./part6
-```
-
-We can use a target in the Earthfile in `/service/services` from inside the Earthfile in the rood of our directory.
+`./service/services/Earthfile`
 
 ```Dockerfile
-# `./service/services/Earthfile`
 
 VERSION 0.6
 FROM golang:1.15-alpine3.13
@@ -63,8 +58,9 @@ deps:
     SAVE ARTIFACT go.sum AS LOCAL go.sum
 ```
 
+`./Earthfile`
+
 ```Dockerfile
-# ./Earthfile
 build:
     FROM ./services/service-one+deps
     COPY main.go .
@@ -90,17 +86,17 @@ In addition to importing tagets from other files, we can also import an entire f
 VERSION 0.6
 FROM golang:1.15-alpine3.13
 WORKDIR /go-example
-IMPORT ./service AS my_service
+IMPORT ./services/service-one AS my_service
 
 build:
-    FROM my_service+docker
+    FROM my_service+deps
     COPY main.go .
     RUN go build -o build/go-example main.go
     SAVE ARTIFACT build/go-example /go-example AS LOCAL build/go-example
 ```
-In this example, we assume there is a `service` directory that contains its own Earthfile. We import it and then use the `AS` keyword to give it an alias.
+In this example, we assume there is a `./services/service-one` directory that contains its own Earthfile. We import it and then use the `AS` keyword to give it an alias.
 
-Then, in our `+build` target we can inherit from any target in the imported Earthfile by passing `alias+target-name`. In this case the Earthfile in the service directory has a target named `+docker`.
+Then, in our `+build` target we can inherit from any target in the imported Earthfile by passing `alias+target-name`. In this case the Earthfile in the service directory has a target named `+deps`.
 
 ## More Examples
 

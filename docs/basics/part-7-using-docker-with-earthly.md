@@ -8,7 +8,7 @@ Examples in [Python](#more-examples), [Javascript](#more-examples) and [Java](#m
 
 ## The WITH DOCKER Command
 
-You may find that you need to run Docker commands inside of a target. For those cases Earthly offers `WITH DOCKER`. `WITH DOCKER` will initialize a Docker daemon that can be used in the context of a `RUN` command. Let's take a look at a couple examples. 
+You may find that you need to run Docker commands inside of a target. For those cases Earthly offers `WITH DOCKER`. `WITH DOCKER` will initialize a Docker daemon that can be used in the context of a `RUN` command.
 
 Whenever you need to use `WITH DOCKER` we recommend (though it is not required) that you use Earthly's own Docker in Docker (dind) image: `earthly/dind:alpine`.
 
@@ -23,7 +23,7 @@ hello:
     END
 
 ```
-You can see in the command above that we can pass a flag to `WITH DOCKER` telling it to pull an image from Docker Hub. We can pass other flags to load in artifacts built by other targets `--load` or even images defined by docker-compose `--compose`. These images will be available within the context of `WITH DOCKER`'s docker daemon.
+You can see in the command above that we can pass a flag to `WITH DOCKER` telling it to pull an image from Docker Hub. We can pass other flags to [load in artifacts built by other targets](#loading-an-image) `--load` or even images defined by [docker-compose](#a-real-world-example) `--compose`. These images will be available within the context of `WITH DOCKER`'s docker daemon.
 
 ### Loading an Image
 We can load in an image created by another target with the `--load` flag.
@@ -43,9 +43,7 @@ hello:
 
 ## A Real World Example
 
-One common use case for `WITH DOCKER` is running integration tests that require other services. In this case we need to set up a redis service for our tests.
-
-### Using Docker Compose
+One common use case for `WITH DOCKER` is running integration tests that require other services. In this case we need to set up a redis service for our tests. For this we can user a `docker-compose.yml`.
 
 `docker-compose.yml`
 ```yml
@@ -138,7 +136,7 @@ integration-tests:
     END
 
 ```
-When we use the `--compose` flag, Earthly will start up the services defined in the `docker-compose` file for us. 
+When we use the `--compose` flag, Earthly will start up the services defined in the `docker-compose` file for us. In this case, we built a separate image that copies in our test files and uses the command to run the tests as its `ENTRYPOINT`. We can then load this image into our `WITH DOCKER` command. Note that loading an image will not run it by default, we need to explicitly run the image after we load it.
 
 ## More Examples
 

@@ -11,23 +11,6 @@ Examples in [Python](#more-examples), [Javascript](#more-examples) and [Java](#m
 Let's say we wanted to have the option to pass in a tag for our Docker image when we run `earthly +docker`.
 
 ```Dockerfile
-VERSION 0.6
-FROM golang:1.15-alpine3.13
-WORKDIR /go-example
-
-deps:
-    COPY go.mod go.sum ./
-    RUN go mod download
-    # Output these back in case go mod download changes them.
-    SAVE ARTIFACT go.mod AS LOCAL go.mod
-    SAVE ARTIFACT go.sum AS LOCAL go.sum
-
-build:
-    FROM +deps
-    COPY main.go .
-    RUN go build -o build/go-example main.go
-    SAVE ARTIFACT build/go-example /go-example AS LOCAL build/go-example
-
 docker:
     ARG tag='latest'
     COPY +build/go-example .
@@ -36,7 +19,7 @@ docker:
 ```
 In our `+docker` target we can create an `ARG` called tag. In this case, we give it a default value of `latest`. If we do not provide a default value the default will be an empty string.
 
-Then, down in our `SAVE IMAGE` command we are able to reference the `ARG` with `$` followed by the `ARG` name.
+Then, down in our `SAVE IMAGE` command, we are able to reference the `ARG` with `$` followed by the `ARG` name.
 
 Now we can take advantage of this when we run Earthly.
 
@@ -50,7 +33,7 @@ earthly +docker
 # tag for image will be 'latests'
 ```
 
-### Passing ARGS in FROM, BUILD, and COPY
+### Passing ARGs in FROM, BUILD, and COPY
 We can also pass `ARG`s when referencing a target inside an Earthfile. Using the `FROM` and `BUILD` commands, this looks pretty similar to what we did above on the command line.
 
 ```Dockerfile
@@ -66,7 +49,7 @@ with-build:
 with-from:
     FROM +docker --tag='my-new-image-tag'
 ```
-We can also pass `ARGS` when using the `COPY` command, though the syntax is a little different.
+We can also pass `ARG`s when using the `COPY` command, though the syntax is a little different.
 
 ```Dockerfile
 build:
@@ -79,16 +62,16 @@ with-copy:
     COPY (+build/go-example --VERSION='1.0') .
 ```
 
-## Builtin ARGS
+## Builtin ARGs
 There are a number of builtin`ARG`s that Earthly offers. You can read about a [complete list of them](https://docs.earthly.dev/docs/earthfile/builtin-args), but for now let's take a look at how they work.
 
-**In order to use Earthly builtin `ARGS` they need to be pre-declared. Once you do that, you can use them just like any other `ARG`.**
+**In order to use Earthly builtin `ARG`s they need to be pre-declared.** Once you do that, you can use them just like any other `ARG`.
 
 ```Dockerfile
 ARG USERARCH
 RUN echo $USERARCH
 ```
-In this case we've declared the build in `ARG` `USERARCH` which is a builtin holds the processor architecture the target is being built from.
+In this case we've declared the `ARG` `USERARCH` which is a builtin that holds the processor architecture the target is being built from.
 
 
 ## More Examples

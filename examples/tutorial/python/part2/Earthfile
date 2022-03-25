@@ -11,4 +11,4 @@ docker:
     FROM +build
     ENTRYPOINT ["python3", "./src/hello.py"]
     SAVE IMAGE --push python-example:latest
- 
+

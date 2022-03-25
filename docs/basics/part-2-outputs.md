@@ -3,8 +3,9 @@ To copy the files for [this example ( Part 2 )](https://github.com/earthly/earth
 ```bash
 earthly --artifact github.com/earthly/earthly/examples/tutorial/go:main+part2/part2 ./part2
 ```
+See below for examples in [Python](#more-examples), [Javascript](#more-examples) and [Java](#more-examples).
 
-Targets have the ability to produce output. You can save files or docker images to your local machine or push them to remote repositories. Targets can also run commands that effect the local environment outside of the build, such as running database migrations. But not all targets produce output. Let's take a look at which commands produce output and how to use them.
+Targets have the ability to produce output outside of the build environment. You can save files and docker images to your local machine or push them to remote repositories. Targets can also run commands that effect the local environment outside of the build, such as running database migrations, but not all targets produce output. Let's take a look at which commands produce output and how to use them.
 
 ## Saving Files
 We've already seen how the command [SAVE ARTIFACT](https://docs.earthly.dev/docs/earthfile#save-artifact) copies a file or directory from the build environment into the target's artifact environment.
@@ -48,19 +49,19 @@ docker:
     ENTRYPOINT ["/go-example/go-example"]
     SAVE IMAGE go-example:latest
 ```
-In this example, running `earthly +docker` will save an image named `go-example` with a tag of `latests`.
+In this example, running `earthly +docker` will save an image named `go-example` with the tag `latest`.
 
 ```bash
-=> earthly +docker
+~$ earthly +docker
 ...
-...
-=> docker image ls
+~$ docker image ls
 REPOSITORY          TAG       IMAGE ID       CREATED          SIZE
 go-example          latest    08b9f749023d   19 seconds ago   297MB
 ```
 **NOTE**
 
-If we run a target as a reference in `FROM` or `COPY`, outputs will not be produced.
+If we run a target as a reference in `FROM` or `COPY`, **outputs will not be produced**. Take this Earthfile for example.
+
 ```Dockerfile
 build:
     COPY main.go .
@@ -74,22 +75,25 @@ docker:
 ```
 In this case, running `earthly +docker` will not produce any output. In other words, you will not have a `build/go-example` written locally, but running `earthly +build` will still produce output as expected.
 
-The exception to this rule is the `BUILD` command.
+The exception to this rule is the `BUILD` command. If you want to use `COPY` or `FROM` and still have Earthly create `build/go-example` locally, you'll need to use the `BUILD` command to do so.
 
 ```Dockerfile
-build-app:
+build:
     COPY main.go .
     RUN go build -o build/go-example main.go
     SAVE ARTIFACT build/go-example /go-example AS LOCAL build/go-example
 
-another-target:
-    BUILD +build-app
+docker:
+    BUILD +build
+    COPY +build/go-example .
+    ENTRYPOINT ["/go-example/go-example"]
+    SAVE IMAGE go-example:latest
 ```
-Running `earthly +another-target` in this case, will still output `build/go-example` locally.
+Running `earthly +docker` in this case will now output `build/go-example` locally.
 
 ## The Push Flag
 
-### Docker 
+### Docker Images
 
 In addition to saving files and images locally, we can also push them to remote repositories.
 
@@ -134,7 +138,7 @@ earthly --push +apply
 ```
 **NOTE**
 
-Just like saving files, any command that uses `--push` will only produce output if called directly, `earthly --push +target-with-push` or via a `BUILD` command. Calling a target via `FROM` or `COPY` will not invoke `--push`.
+Just like saving files, any command that uses `--push` **will only produce output if called directly**, `earthly --push +target-with-push` **or via a** `BUILD` command. Calling a target via `FROM` or `COPY` will not invoke `--push`.
 
 ### More Examples
 <details open>

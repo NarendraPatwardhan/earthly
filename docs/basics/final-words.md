@@ -34,5 +34,4 @@ If you have any questions, feedback or suggestions for Earthly or this tutorial 
 * [Part 5: Args](./part-5-args.md)
 * [Part 6: Importing](./part-6-importing.md)
 * [Part 7: Using Docker In Earthly](./part-7-using-docker-with-earthly.md)
-* [Final words](./final-words.md)
 * **Final words** <-- You are here.

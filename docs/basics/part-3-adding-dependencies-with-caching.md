@@ -128,7 +128,7 @@ The code of the app might look like this
 
 `./src/index.js`
 
-```js
+```javascript
 function component() {
     const element = document.createElement('div');
     element.innerHTML = "hello world"
